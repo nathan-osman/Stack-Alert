@@ -1,0 +1,25 @@
+<style>
+
+</style>
+
+<script>
+
+// Retrieves the inbox items from the last time we synched with
+// the API. This data is stored using HTML5 localStorage
+var inbox_items = localStorage.getItem('inbox_contents');
+
+if(inbox_items === null)
+    document.write('There is currently no inbox data stored.');
+else {
+    // Create the list that will contain the inbox items
+    var list_element = document.createElement('ul');
+    
+    for(var i=0;i<inbox_items.length;++i) {
+        var item_element = document.createElement('li');
+        item_element.innerHTML = inbox_items[i]['title'];
+        
+        list_element.appendChild(item_element);
+    }
+}
+
+</script>
