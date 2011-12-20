@@ -1,0 +1,8 @@
+{
+    "name": "Stack Alert",
+    "version": "1.0",
+    "description": "Monitors the inbox of a Stack Exchange account for new items.",
+    "browser_action": {
+        "default_icon": "icon.png"
+    }
+}
