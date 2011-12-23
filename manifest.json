@@ -2,6 +2,7 @@
     "name": "Stack Alert",
     "version": "1.0",
     "description": "Monitors the inbox of a Stack Exchange account for new items.",
+    "background_page": "background.html",
     "browser_action": {
         "default_icon": "icon.png",
         "popup": "popup.html"
