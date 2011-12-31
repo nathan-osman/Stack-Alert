@@ -1,25 +1,49 @@
 <style>
 
+.auth {
+    width: 260px;
+    height: 80px;
+}
+
+.auth button {
+    width: 100%;
+}
+
 </style>
 
 <script src="stackapi.js"></script>
 <script>
 
-// Retrieves the inbox items from the last time we synched with
-// the API. This data is stored using HTML5 localStorage
-var inbox_items = localStorage.getItem('inbox_contents');
-
-if(inbox_items === null)
-    document.write('There is currently no inbox data stored.');
-else {
-    // Create the list that will contain the inbox items
-    var list_element = document.createElement('ul');
+function Authorize() {
     
-    for(var i=0;i<inbox_items.length;++i) {
-        var item_element = document.createElement('li');
-        item_element.innerHTML = inbox_items[i]['title'];
+    StackAPI.BeginImplicitRequest();
+    
+}
+
+// This page contains either the button to begin authorizing the application
+// or the current inbox items - or of course, an error if one occurred.
+if(localStorage.getItem('access_token') === null) {
+    
+    document.write('<body class="auth"><p>You need to authorize StackAlert to access your account.</p><button onclick="Authorize();">Authorize Now</button></body>');
+    
+} else {
+    
+    // Retrieves the inbox items from the last time we synched with
+    // the API. This data is stored using HTML5 localStorage
+    var inbox_items = localStorage.getItem('inbox_contents');
+    
+    if(inbox_items === null)
+        document.write('There is currently no inbox data stored.');
+    else {
+        // Create the list that will contain the inbox items
+        var list_element = document.createElement('ul');
         
-        list_element.appendChild(item_element);
+        for(var i=0;i<inbox_items.length;++i) {
+            var item_element = document.createElement('li');
+            item_element.innerHTML = inbox_items[i]['title'];
+            
+            list_element.appendChild(item_element);
+        }
     }
 }
 

@@ -1,0 +1,63 @@
+<!-- This page runs in the background and polls the
+     API periodically to insert the most recent
+     inbox data into localStorage -->
+
+<script src="stackapi.js"></script>
+<script>
+
+// Constant color definitions
+var color_loading        = [255, 255, 0, 255];
+var color_empty_inbox    = [0, 128, 255, 255];
+var color_items_in_inbox = [0, 128, 255, 255];
+var color_error          = [255, 0, 0, 255];
+
+// Utility methods
+function SetBadge(badge_text, badge_tooltip, badge_color) {
+    
+    chrome.browserAction.setBadgeText({text: badge_text});
+    chrome.browserAction.setTitle({title: badge_tooltip});
+    chrome.browserAction.setBadgeBackgroundColor({color: badge_color});
+    
+}
+
+// Set the background color of the action to the loading
+// color and set the text accordingly.
+SetBadge('...', 'Loading data from the API...', color_loading);
+
+// The timer ID is stored here so that we can cancel
+// it if necessary when a manual update is forced.
+var timer_id;
+
+// This method updates the inbox data in localStorage
+function PerformUpdate() {
+    
+    // Check to make sure the user is authenticated
+    var access_token = localStorage.getItem('access_token');
+    
+    if(access_token !== null) {
+        
+        // Perform the JSONP request
+        StackAPI.MakeRequest('/inbox', { access_token: access_token },
+                             function(data) {
+                                 
+                                 // Success!
+                                 
+                             },
+                             function(error_data) {
+                                 
+                                 // Failure!
+                                 
+                             });
+        
+        // Schedule the next update
+        timer_id = window.setTimeout(PerformUpdate, 120000);
+        
+    } else
+        SetBadge('!', 'You have not authorized StackAlert to access your account.', color_error);
+    
+}
+
+// Perform the initial update
+PerformUpdate();
+
+</script>
