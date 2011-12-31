@@ -1,0 +1,10 @@
+## Swap files for emacs, gedit etc ##
+
+*~
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+Desktop.ini
