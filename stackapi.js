@@ -33,7 +33,7 @@ var StackAPI = {
             if(typeof data['error_id'] == 'undefined')
                 success_callback(data);
             else
-                error_callback(data);
+                failure_callback(data);
         };
         
         // URL-encode the parameters
@@ -43,34 +43,58 @@ var StackAPI = {
         
         // Create the script element and set its source
         var script_response = document.createElement('script');
-        script_response.src = 'http://api.stackexchange.com/2.0' + method + '?key=' + StackAPI.APIKey + '&callback=' + jsonp_callback + param_str;
+        script_response.src = 'https://api.stackexchange.com/2.0' + method + '?key=' + StackAPI.APIKey + '&callback=' + jsonp_callback + param_str;
         document.getElementsByTagName('head')[0].appendChild(script_response);
         
     },
     
     // Begins an implicit OAuth 2.0 request
-    BeginImplicitRequest: function() {
+    BeginImplicitAuth: function(redirect_uri) {
         
-        //...
+        // Create the new window
+        var window_url = 'https://stackexchange.com/oauth/dialog?client_id=' + StackAPI.ClientID +
+                         '&scope=read_inbox&redirect_uri=' + encodeURIComponent(redirect_uri);
+        window.open(window_url, 'auth_window', 'width=640,height=400,menubar=no,toolbar=no,location=no,status=no');
         
     },
     
     // Completes an implicit OAuth 2.0 request
-    CompleteImplicitRequest: function() {
+    CompleteImplicitAuth: function() {
         
-        //...
+        // Trim the '#' and split against '&'
+        var hash = location.hash;
         
+        if(hash.indexOf('#') === 0)
+            hash = hash.substr(1);
+        
+        hash = hash.split('&');
+        
+        // Convert to an array
+        var hash_map = {};
+        for(var i=0;i<hash.length;++i)
+            if(hash[i] != '' && hash[i].indexOf('=') !== -1)
+                hash_map[hash[i].split('=')[0]] = decodeURIComponent(hash[i].split('=')[1]).replace(/\+/g, ' ');
+        
+        // Retrieve the success and error callbacks
+        if(typeof hash_map['access_token'] == 'undefined') {
+            
+            document.write('<p>An error has occurred during the authorization process. Please close this window and try again.</p>');
+            
+            if(typeof hash_map['error_description'] != 'undefined')
+                document.write('<p><b>Description:</b> ' + hash_map['error_description'] + '</p>');
+            
+        } else {
+            
+            // Store the access token
+            localStorage.setItem('access_token', hash_map['access_token']);
+            
+            // Trigger an update in the background page
+            chrome.extension.sendRequest({});
+        
+            // Close the window
+            window.close();
+            
+        }
     }
     
 };
-
-/*
-// In case we are participating in an implicit OAuth transaction,
-// check to see if we need to complete the process.
-if(typeof window.opener != 'undefined' && window.opener !== null && typeof window.opener.StackPHP != 'undefined') {
-    
-    window.opener.StackPHP.CompleteImplicitFlow(location.hash);
-    window.close();
-    
-}
-*/

@@ -20,16 +20,19 @@ function SetBadge(badge_text, badge_tooltip, badge_color) {
     
 }
 
-// Set the background color of the action to the loading
-// color and set the text accordingly.
-SetBadge('...', 'Loading data from the API...', color_loading);
-
 // The timer ID is stored here so that we can cancel
 // it if necessary when a manual update is forced.
-var timer_id;
+var timer_id = null;
 
 // This method updates the inbox data in localStorage
 function PerformUpdate() {
+
+    // Cancel the timer if need be
+    if(timer_id !== null)
+        window.clearTimeout(timer_id);
+    
+    // Let the user know that the data is being loaded
+    SetBadge('...', 'Loading data from the API...', color_loading);
     
     // Check to make sure the user is authenticated
     var access_token = localStorage.getItem('access_token');
@@ -40,12 +43,18 @@ function PerformUpdate() {
         StackAPI.MakeRequest('/inbox', { access_token: access_token },
                              function(data) {
                                  
-                                 // Success!
+                                 var unread = 0;
+                                 for(var i=0;i<data['items'].length;++i) {
+                                     if(data['items'][i]['is_unread'])
+                                         ++unread;
+                                 }
+                                 
+                                 SetBadge(unread.toString(), 'You have ' + unread + ' unread items in your inbox.', color_items_in_inbox);
                                  
                              },
-                             function(error_data) {
+                             function(data) {
                                  
-                                 // Failure!
+                                 SetBadge('!', data['error_message'], error_color);
                                  
                              });
         
@@ -59,5 +68,12 @@ function PerformUpdate() {
 
 // Perform the initial update
 PerformUpdate();
+
+// Listen for requests to update the data
+chrome.extension.onRequest.addListener(function() {
+    
+    PerformUpdate();
+    
+});
 
 </script>

@@ -16,7 +16,7 @@
 
 function Authorize() {
     
-    StackAPI.BeginImplicitRequest();
+    StackAPI.BeginImplicitAuth(chrome.extension.getURL('auth_complete.html'));
     
 }
 
