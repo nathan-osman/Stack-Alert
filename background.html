@@ -40,8 +40,11 @@ function PerformUpdate() {
     if(access_token !== null) {
         
         // Perform the JSONP request
-        StackAPI.MakeRequest('/inbox', { access_token: access_token },
+        StackAPI.MakeRequest('/inbox', { access_token: access_token, filter: '!-pvd4dkY' },
                              function(data) {
+                                 
+                                 // Store the data
+                                 localStorage.setItem('inbox_contents', JSON.stringify(data['items']));
                                  
                                  var unread = 0;
                                  for(var i=0;i<data['items'].length;++i) {
@@ -54,7 +57,7 @@ function PerformUpdate() {
                              },
                              function(data) {
                                  
-                                 SetBadge('!', data['error_message'], error_color);
+                                 SetBadge('!', data['error_message'], color_error);
                                  
                              });
         

@@ -53,7 +53,7 @@ var StackAPI = {
         
         // Create the new window
         var window_url = 'https://stackexchange.com/oauth/dialog?client_id=' + StackAPI.ClientID +
-                         '&scope=read_inbox&redirect_uri=' + encodeURIComponent(redirect_uri);
+                         '&scope=no_expiry,read_inbox&redirect_uri=' + encodeURIComponent(redirect_uri);
         window.open(window_url, 'auth_window', 'width=640,height=400,menubar=no,toolbar=no,location=no,status=no');
         
     },
