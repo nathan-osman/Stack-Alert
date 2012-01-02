@@ -7,7 +7,7 @@
 
 // Constant color definitions
 var color_loading        = [255, 255, 0, 255];
-var color_empty_inbox    = [0, 128, 255, 255];
+var color_empty_inbox    = [0, 196, 196, 196];
 var color_items_in_inbox = [0, 128, 255, 255];
 var color_error          = [255, 0, 0, 255];
 
@@ -52,7 +52,9 @@ function PerformUpdate() {
                                          ++unread;
                                  }
                                  
-                                 SetBadge(unread.toString(), 'You have ' + unread + ' unread items in your inbox.', color_items_in_inbox);
+                                 SetBadge(unread.toString(),
+                                          'You have ' + unread + ' unread items in your inbox.',
+                                          (unread)?color_items_in_inbox:color_empty_inbox);
                                  
                              },
                              function(data) {

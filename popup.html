@@ -30,6 +30,20 @@ function Authorize() {
     
 }
 
+// This function generates an rgb() declaration from 1 or 3 parameters
+function GenerateRGB(r, g, b) {
+    
+    // If either of the other two parameters were not specified,
+    // set their values to 'r'.
+    if(typeof g == 'undefined')
+        g = r;
+    if(typeof b == 'undefined')
+        b = r;
+    
+    return 'rgb(' + parseInt(r) + ',' + parseInt(g) + ',' + parseInt(b) + ')';
+    
+}
+
 // Check to see if we have an access token. If we don't we need to
 // let the user know that they need one and provide a button for getting one.
 if(localStorage.getItem('access_token') === null) {
@@ -50,15 +64,36 @@ if(localStorage.getItem('access_token') === null) {
         inbox_items = JSON.parse(inbox_items);
         
         // Begin generating the HTML for the page
-        var page_contents = '<h3>Your Inbox:</h3><ul class="contents">';
+        var page_contents = '<h3>Inbox Contents:</h3></p><ul class="contents">';
         
-        // The 'odd' variable lets us color rows in alternating colors
-        var odd = false;
+        // The color of the item is determined by this factor
+        var color_factor = 0.4;
+        
         for(var i=0;i<inbox_items.length;++i) {
-        
-            page_contents += '<li class="' + (odd?'odd':'even') + (inbox_items[i]['is_unread']?' unread':'') + '"><a href="' + inbox_items[i]['link'] + '" target="_blank"><span class="title">' + inbox_items[i]['title'] + '</span><span class="body">' + inbox_items[i]['body'] + '</span></a></li>';
             
-            odd = !odd;
+            // Both the background and text colors begin at a constant value
+            // and are modified later according to their position and status.
+            var bg    = 32;
+            var color = 255;
+            
+            // If it is unread, slowly scale back its color
+            if(!inbox_items[i]['is_unread']) {
+            
+                if(color_factor <= 0.1)
+                    break;
+                
+                bg    *= color_factor;
+                color *= color_factor;
+                
+                color_factor -= 0.1;
+                
+            }
+            
+            // Invert the colors
+            bg    = 255 - bg;
+            color = 255 - color;
+        
+            page_contents += '<li style="background-color: ' + GenerateRGB(bg) + '"><a href="' + inbox_items[i]['link'] + '" target="_blank" style="color: ' + GenerateRGB(color) + ';"><span class="title">' + inbox_items[i]['title'] + '</span><span class="body">' + inbox_items[i]['body'] + '</span></a></li>';
             
         }
         
