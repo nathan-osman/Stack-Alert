@@ -1,7 +1,8 @@
 {
     "name": "Stack Alert",
-    "version": "1.0",
+    "version": "0.1",
     "description": "Monitors the inbox of a Stack Exchange account for new items.",
+    "update_url": "http://quickmediasolutions.com/stackalert/updates.xml",
     "background_page": "background.html",
     "browser_action": {
         "default_icon": "icon.png",

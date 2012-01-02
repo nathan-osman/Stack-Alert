@@ -1,93 +1,69 @@
-<style>
+<!--
 
-body {
-    font-family: arial, helvetica, sans;
-}
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-a {
-    text-decoration: none;
-    color: #333;
-}
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-a:hover {
-    text-decoration: underline;
-    color: #000;
-}
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-.auth {
-    width: 260px;
-    height: 80px;
-}
+-->
 
-.auth button {
-    width: 100%;
-}
+<!-- This page displays the popup when the user clicks the action icon -->
 
-.contents {
-    width: 400px;
-    padding-left: 0px;
-}
-
-.contents li {
-    list-style-type: none;
-    padding: 4px 8px;
-}
-
-.contents li.even {
-    background-color: #eee;
-}
-
-.contents li .title {
-    font-size: 10pt;
-    display: block;
-    font-weight: bold;
-}
-
-.contents li .body {
-    font-size: 9pt;
-}
-
-</style>
-
+<!-- Include our stylesheet and JavaScript utility library -->
+<link href="style.css" rel="stylesheet" />
 <script src="stackapi.js"></script>
+
 <script>
 
+// This function begins the authorization process.
 function Authorize() {
     
     StackAPI.BeginImplicitAuth(chrome.extension.getURL('auth_complete.html'));
     
 }
 
-// This page contains either the button to begin authorizing the application
-// or the current inbox items - or of course, an error if one occurred.
+// Check to see if we have an access token. If we don't we need to
+// let the user know that they need one and provide a button for getting one.
 if(localStorage.getItem('access_token') === null) {
     
     document.write('<div class="auth"><p>You need to authorize StackAlert to access your account.</p><button onclick="Authorize();">Authorize Now</button></div>');
     
 } else {
     
-    // Retrieves the inbox items from the last time we synched with
-    // the API. This data is stored using HTML5 localStorage
+    // Check to see if the inbox data is available (since the background
+    // page should be fetching it periodically).
     var inbox_items = localStorage.getItem('inbox_contents');
     
     if(inbox_items === null)
-        document.write('There is currently no inbox data stored.');
+        document.write('Inbox data is not available at this time.');
     else {
         
+        // The inbox data is JSON-encoded so decode it now.
         inbox_items = JSON.parse(inbox_items);
         
-        // Create the list that will contain the inbox items
-        var list_contents = '<h3>Your Inbox:</h3><ul class="contents">';
+        // Begin generating the HTML for the page
+        var page_contents = '<h3>Your Inbox:</h3><ul class="contents">';
         
+        // The 'odd' variable lets us color rows in alternating colors
         var odd = false;
         for(var i=0;i<inbox_items.length;++i) {
-            list_contents += '<li class="' + (odd?'odd':'even') + '"><a href="' + inbox_items[i]['link'] + '" target="_blank"><span class="title">' + inbox_items[i]['title'] + '</span><span class="body">' + inbox_items[i]['body'] + '</span></a></li>';
+        
+            page_contents += '<li class="' + (odd?'odd':'even') + (inbox_items[i]['is_unread']?' unread':'') + '"><a href="' + inbox_items[i]['link'] + '" target="_blank"><span class="title">' + inbox_items[i]['title'] + '</span><span class="body">' + inbox_items[i]['body'] + '</span></a></li>';
+            
             odd = !odd;
+            
         }
         
-        list_contents += '</ul>';
-        
-        document.write(list_contents);
+        page_contents += '</ul>';
+        document.write(page_contents);
     }
 }
 
