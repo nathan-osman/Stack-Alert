@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://stackalert/skin/stackalert.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://stackalert/locale/stackalert.dtd">
+<overlay id="sa_overlay" 
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+  <script src="stackalert.js" />
+  
+  <toolbar id="nav-bar">
+    <toolbarbutton id="stackalert" class="toolbarbutton-1"
+                   label="&stackalert.title;" tooltiptext="&stackalert.title;"
+                   oncommand="StackAlert.ShowPopup();" />
+  </toolbar>
+</overlay>

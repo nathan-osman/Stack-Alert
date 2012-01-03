@@ -1,0 +1,7 @@
+content stackalert chrome/content/
+skin stackalert classic/1.0 chrome/skin/
+
+style chrome://global/content/customizeToolbar.xul chrome://stackalert/skin/stackalert.css
+overlay chrome://browser/content/browser.xul chrome://stackalert/content/stackalert.xul
+
+locale stackalert en-US chrome/locale/en-US/
