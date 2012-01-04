@@ -1,5 +1,5 @@
 /* Note: we include both large and small toolbar icons */
 
-#stackalert {
+#stackalert-button {
     list-style-image: url("chrome://stackalert/skin/button.png");
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<window id="stackalert-auth" title="Stack Alert Authorization"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+  <script src="stackalert.js" />
+  
+  <browser id="stackalert-browser" type="content" width="800" height="400" />
+  
+  <script>
+  <![CDATA[
+  
+  var WhenLoaded = function() { StackAlert.BeginAuthorization('https://stackexchange.com/oauth/login_success'); };
+  
+  if(document.readyState == 'complete')
+      WhenLoaded();
+  else
+      document.addEventListener('readystatechange', WhenLoaded, true);
+  
+  ]]>
+  </script>
+  
+</window>
