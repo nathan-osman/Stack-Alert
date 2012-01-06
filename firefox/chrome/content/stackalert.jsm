@@ -1,8 +1,5 @@
 var EXPORTED_SYMBOLS = ['StackAlert'];
 
-// TODO:
-// - we can actually use cross-domain requests in both cases, so we should switch to that
-
 var StackAlert = {
     
     //==========================================================
@@ -50,8 +47,21 @@ var StackAlert = {
     //    Utility methods for working with colors / icons
     //==========================================================
     
+    GenerateRGB: function(r, g, b) {
+        
+        // If either of the other two parameters were not specified,
+        // set their values to 'r'.
+        if(typeof g == 'undefined')
+            g = r;
+        if(typeof b == 'undefined')
+            b = r;
+        
+        return 'rgb(' + parseInt(r) + ',' + parseInt(g) + ',' + parseInt(b) + ')';
+        
+    },
+    
     // Generates an RGB or RGBA string from the specified array
-    GenerateRGB: function(color_array) {
+    GenerateRGBArray: function(color_array) {
         
         // Check for the value of the 'a' parameter
         if(color_array.length < 4)
@@ -86,11 +96,11 @@ var StackAlert = {
             var text_width = context.measureText(text).width;
             
             // Draw the rectangle onto the icon
-            context.fillStyle = StackAlert.GenerateRGB(bg_color);
+            context.fillStyle = StackAlert.GenerateRGBArray(bg_color);
             context.fillRect(20 - text_width, 12, text_width + 4, 12);
             
             // Draw the text onto the rectangle
-            context.fillStyle = StackAlert.GenerateRGB([255, 255, 255]);
+            context.fillStyle = StackAlert.GenerateRGB(255);
             context.fillText(text, 22 - text_width, 22);
             
             complete_callback(canvas.toDataURL("image/png"));
@@ -285,11 +295,43 @@ var StackAlert = {
             
         } else {
             
+            // Retrieve the inbox items
+            var inbox_items = JSON.parse(StackAlert.GetPreference('inbox_contents', '[]'));
+            
             var html = '<div class="inbox"><h3>Inbox Contents</h3><ul class="contents">';
             
-            //...
+            // The color of the item is determined by this factor
+            var color_factor = 0.4;
             
-            html += '</ul>';
+            for(var i=0;i<inbox_items.length;++i) {
+                
+                // Both the background and text colors begin at a constant value
+                // and are modified later according to their position and status.
+                var bg    = 32;
+                var color = 255;
+                
+                // If it is unread, slowly scale back its color
+                if(!inbox_items[i]['is_unread']) {
+                
+                    if(color_factor <= 0.1)
+                        break;
+                    
+                    bg    *= color_factor;
+                    color *= color_factor;
+                    
+                    color_factor -= 0.1;
+                    
+                }
+                
+                // Invert the colors
+                bg    = 255 - bg;
+                color = 255 - color;
+                
+                html += '<li style="background-color: ' + StackAlert.GenerateRGB(bg) + '"><a href="' + inbox_items[i]['link'] + '" target="_blank" style="color: ' + StackAlert.GenerateRGB(color) + ';"><span class="title">' + inbox_items[i]['title'] + '</span><span class="body">' + inbox_items[i]['body'] + '</span></a></li>';
+                
+            }
+            
+            html += '</ul></div>';
             document.write(html);
             
         }

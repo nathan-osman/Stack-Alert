@@ -7,5 +7,31 @@ body {
 }
 
 .inbox .contents {
-    /*  */
+    padding-left: 0px;
+}
+
+.inbox .contents li {
+    list-style-type: none;
+    padding: 4px 8px;
+    margin: 6px 2px;
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+}
+
+.inbox .contents a {
+    text-decoration: none;
+}
+
+.inbox .contents a:hover {
+    color: #777 !important;
+}
+
+.inbox .contents .title {
+    font-size: 10pt;
+    display: block;
+    font-weight: bold;
+}
+
+.inbox .contents .body {
+    font-size: 9pt;
 }

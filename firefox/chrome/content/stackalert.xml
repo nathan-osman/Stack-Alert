@@ -6,8 +6,8 @@
   <binding id="stackalert-binding">
     <content>
       <xul:toolbarbutton class="toolbarbutton-1" label="&stackalert.title;" tooltiptext="&stackalert.title;" />
-      <xul:panel width="200" height="200">
-        <xul:browser type="chrome" width="200" height="200" src="chrome://stackalert/content/popup.html" />
+      <xul:panel width="300" height="350">
+        <xul:browser type="chrome" flex="1" src="chrome://stackalert/content/popup.html" />
       </xul:panel>
     </content>
     <implementation>
