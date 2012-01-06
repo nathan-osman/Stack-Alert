@@ -1,46 +1,10 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://stackalert/skin/" type="text/css"?>
-<!DOCTYPE overlay SYSTEM "chrome://stackalert/locale/stackalert.dtd">
 <overlay id="stackalert-overlay" 
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   
-  <script src="stackalert.js" />
-  
   <toolbar id="nav-bar">
-    <toolbarbutton id="stackalert-button" class="toolbarbutton-1"
-                   label="&stackalert.title;" tooltiptext="&stackalert.title;" />
-    <panel id="stackalert-panel" width="200" height="200">
-      <browser id="stackalert-popup" type="chrome" width="200" height="200" src="chrome://stackalert/content/popup.html" />
-    </panel>
+    <box class="stackalert-button" />
   </toolbar>
-  
-  <script>
-  <![CDATA[
-  
-  // Once the document has loaded, associate the popup with the
-  // toolbar button.
-  
-  var WhenLoaded = function() {
-      
-      if(document.readyState == 'complete') {
-          
-          var button = document.getElementById('stackalert-button');
-          button.addEventListener('click', function() {
-              
-              document.getElementById('stackalert-panel').openPopup(button, 'after_start', 0, 0, false, false);
-              document.getElementById('stackalert-popup').contentWindow.location.reload();
-              
-          }, true);
-          
-      }
-  };
-  
-  if(document.readyState == 'complete')
-      WhenLoaded();
-  else
-      document.addEventListener('readystatechange', WhenLoaded, true);
-  
-  ]]>
-  </script>
   
 </overlay>

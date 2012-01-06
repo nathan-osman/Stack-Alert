@@ -3,14 +3,20 @@
 <window id="stackalert-auth" title="Stack Alert Authorization"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   
-  <script src="stackalert.js" />
-  
   <browser id="stackalert-browser" type="content" width="800" height="400" />
   
   <script>
   <![CDATA[
   
-  var WhenLoaded = function() { StackAlert.BeginAuthorization('https://stackexchange.com/oauth/login_success'); };
+  // Import the JS module
+  Components.utils.import('chrome://stackalert/content/stackalert.jsm');
+  
+  var WhenLoaded = function() {
+      
+      var browser = document.getElementById('stackalert-browser');
+      StackAlert.BeginAuthorization(browser, 'https://stackexchange.com/oauth/login_success');
+      
+  };
   
   if(document.readyState == 'complete')
       WhenLoaded();
