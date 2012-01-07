@@ -2,13 +2,17 @@
 <html>
 <head>
   <link href="chrome://stackalert/skin/popup.css" rel="stylesheet" />
-  <script src="stackalert.jsm"></script>
 </head>
 <body bgcolor="white">
   <!-- Generate the page contents -->
   <script>
   
-  StackAlert.GeneratePopupHTML();
+  Components.utils.import('chrome://stackalert/content/stackalert.jsm');
+  
+  var div = document.createElement('div');
+  StackAlert.GeneratePopupHTML(div);
+  
+  document.getElementsByTagName('body')[0].appendChild(div);
   
   </script>
 </body>

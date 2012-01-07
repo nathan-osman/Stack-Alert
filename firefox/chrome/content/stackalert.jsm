@@ -172,6 +172,32 @@ var StackAlert = {
     //              Stack Exchange API methods
     //==========================================================
     
+    // Replaces anything in a URL that could cause injections
+    EscapeURL: function(url_str) {
+        
+        // Whitelist instead of blacklist... much safer!
+        return url_str.replace(/[^\w:/.#\-]/g, '');
+        
+    },
+    
+    // Part (okay, most) of this function is borrowed from here:
+    // https://developer.mozilla.org/en/XUL_School/DOM_Building_and_HTML_Insertion#dom-building-html
+    EscapeHTML: function(html_str) {
+        
+        return html_str.replace(/[&"<>]/g, function (m) "&" + ({ "&": "amp", '"': "quot", "<": "lt", ">": "gt" })[m] + ";");
+        
+    },
+    
+    // And this function comes from further down the same page as the
+    // function above.
+    SafelyAppendHTML: function(html, element) {
+        
+        return Components.classes["@mozilla.org/feed-unescapehtml;1"]  
+          .getService(Components.interfaces.nsIScriptableUnescapeHTML)  
+          .parseFragment(html, false, null, element);
+        
+    },
+    
     MakeAPIRequest: function(method, parameters, success_callback, failure_callback) {
         
         // Create the request
@@ -190,10 +216,20 @@ var StackAlert = {
             
             if(request.readyState == 4) {
                 
-                if(request.status == 200)
-                    success_callback(JSON.parse(request.responseText));
+                // A status of 200 means either success or an API error ocurred
+                // which means that error_id and error_message should be set
+                if(request.status == 200) {
+                    
+                    var json_response = JSON.parse(request.responseText);
+                    
+                    if(typeof json_response['error_message'] != 'undefined')
+                        failure_callback(json_response['error_message']);
+                    else
+                        success_callback(json_response);
+                    
+                }
                 else
-                    failure_callback(JSON.parse(request.responseText));
+                    failure_callback(request.statusText);
                 
             }
         };
@@ -204,7 +240,7 @@ var StackAlert = {
     },
     
     // Displays the authorization window on the screen
-    ShowAuthWindow: function() {
+    ShowAuthWindow: function(window) {
         
         window.open('auth.xul', 'stackalert_auth', 'chrome');
         
@@ -280,25 +316,64 @@ var StackAlert = {
     },
     
     //==========================================================
+    //                    Misc. methods
+    //==========================================================
+    
+    OpenTab: function(url) {
+        
+        Components.utils.import("resource://gre/modules/Services.jsm");
+        var browser = Services.wm.getMostRecentWindow("navigator:browser").getBrowser();
+        
+        // Select the newly opened tab
+        browser.selectedTab = browser.addTab(url);
+        
+    },
+    
+    ResetError: function() {
+        
+        StackAlert.SetPreference('error_details', '');
+        
+    },
+    
+    //==========================================================
     //                     HTML methods
     //==========================================================
     
-    // Generates the HTML for the popup
-    GeneratePopupHTML: function() {
+    // Generates the HTML for the popup using the specified element
+    GeneratePopupHTML: function(element) {
         
-        // First check to see if we have an access token.
-        if(StackAlert.GetPreference('access_token', '') == '') {
+        // First check to see if an error needs to be displayed
+        if(StackAlert.GetPreference('error_details', '') != '') {
+            
+            // Create the wrapping DIV
+            element.setAttribute('class', 'error');
+            
+            // Add the header followed by the error message
+            element.innerHTML = '<h3>Error</h3><p>An error has occurred. Details are below:</p>';
+            StackAlert.SafelyAppendHTML(StackAlert.GetPreference('error_details',
+                                                                 '<p>There was a problem retrieving error details.</p>'),
+                                        element);
+            
+            // Add the dismissal button
+            element.innerHTML += '<button onclick="StackAlert.ResetError();window.reload();">OK</button>';
+            
+        } else if(StackAlert.GetPreference('access_token', '') == '') {
             
             // No access token has been specified yet, so generate the HTML
             // that asks the user to authorize the application.
-            document.write('<div class="auth"><p>You need to authorize this extension to access the contents of your Stack Exchange account.</p><button onclick="StackAlert.ShowAuthWindow();">Authorize Extension</button></div>');
+            element.setAttribute('class', 'auth');
+            element.innerHTML = '<p>You need to authorize this extension to access the contents of your Stack Exchange account.</p><button onclick="StackAlert.ShowAuthWindow(window);">Authorize Extension</button>';
             
         } else {
             
             // Retrieve the inbox items
             var inbox_items = JSON.parse(StackAlert.GetPreference('inbox_contents', '[]'));
             
-            var html = '<div class="inbox"><h3>Inbox Contents</h3><ul class="contents">';
+            element.setAttribute('class', 'inbox');
+            element.innerHTML = '<h3>Inbox Contents</h3>';
+            
+            // Begin generating the HTML contents for the inbox
+            var html_contents = '<ul class="contents">';
             
             // The color of the item is determined by this factor
             var color_factor = 0.4;
@@ -327,12 +402,12 @@ var StackAlert = {
                 bg    = 255 - bg;
                 color = 255 - color;
                 
-                html += '<li style="background-color: ' + StackAlert.GenerateRGB(bg) + '"><a href="' + inbox_items[i]['link'] + '" target="_blank" style="color: ' + StackAlert.GenerateRGB(color) + ';"><span class="title">' + inbox_items[i]['title'] + '</span><span class="body">' + inbox_items[i]['body'] + '</span></a></li>';
+                html_contents += '<li style="background-color: ' + StackAlert.GenerateRGB(bg) + '"><a href="javascript:void(0)" onclick="StackAlert.OpenTab(\'' + StackAlert.EscapeURL(inbox_items[i]['link']) + '\');return false;" style="color: ' + StackAlert.GenerateRGB(color) + ';"><span class="title">' + StackAlert.EscapeHTML(inbox_items[i]['title']) + '</span><span class="body">' + StackAlert.EscapeHTML(inbox_items[i]['body']) + '</span></a></li>';
                 
             }
             
-            html += '</ul></div>';
-            document.write(html);
+            html_contents += '</ul>';
+            element.innerHTML += html_contents;
             
         }
     },
@@ -373,7 +448,7 @@ var StackAlert = {
         
         if(access_token != '') {
             
-            StackAlert.MakeAPIRequest('/inbox', { access_token: access_token, filter: '!-pvd4dkY' },
+            StackAlert.MakeAPIRequest('/inbox', { access_token: access_token, filter: '.g7piuS' },
                                       function(data) {
                                           
                                           // Store the data
@@ -390,9 +465,14 @@ var StackAlert = {
                                                                       (unread)?StackAlert.ColorNewItems:StackAlert.ColorEmpty);
                                           
                                       },
-                                      function(data) {
+                                      function(error_details) {
                                           
-                                          StackAlert.UpdateAllButtons('!', data['error_message'], StackAlert.ColorError);
+                                          var error_html = '<p>An error has occurred.</p><p>Details: <code>' + StackAlert.EscapeHTML(error_details) + '</code>.</p>';
+                                          
+                                          // Store the error HTML
+                                          StackAlert.SetPreference('error_details', error_html);
+                                          
+                                          StackAlert.UpdateAllButtons('!', error_details, StackAlert.ColorError);
                                           
                                       });
             

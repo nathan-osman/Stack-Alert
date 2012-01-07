@@ -35,3 +35,11 @@ body {
 .inbox .contents .body {
     font-size: 9pt;
 }
+
+.error h3 {
+    color: #900;
+}
+
+.error button {
+    width: 100%;
+}
