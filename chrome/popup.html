@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Include our stylesheet and JavaScript utility library -->
+  <link href="style.css" rel="stylesheet" />
+  <script src="stackalert.js"></script>
+  <script src="chrome.js"></script>
+</head>
+<body>
+  <script>
+  
+  var div = document.createElement('div');
+  StackAlert.GeneratePopupHTML(div);
+  
+  document.getElementsByTagName('body')[0].appendChild(div);
+  
+  </script>
+</body>
+</html>

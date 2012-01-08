@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Include our stylesheet and JavaScript utility library -->
+  <link href="style.css" rel="stylesheet" />
+  <script src="stackalert.js"></script>
+  <script src="chrome.js"></script>
+</head>
+<body>
+  <script>
+  
+  var message = StackAlert.CompleteAuthorization(location);
+  
+  if(message == '') {
+      
+      // Send a message to the background page to refresh
+      chrome.extension.sendRequest({});
+      
+      window.close();
+      
+  }
+  else
+      document.write('<h3>Error:</h3><p>An error has occurred:</p><pre>' + message + '</pre><button onclick="window.close();">Close</button>');
+  
+  </script>
+</body>
+</html>

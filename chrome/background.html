@@ -1,0 +1,20 @@
+<!-- This page runs in the background and polls the
+     API periodically to insert the most recent
+     inbox data into localStorage -->
+
+<script src="stackalert.js"></script>
+<script src="chrome.js"></script>
+
+<script>
+
+// Perform the initial update
+StackAlert.PerformUpdate();
+
+// Listen for requests to update the data
+chrome.extension.onRequest.addListener(function() {
+    
+    StackAlert.PerformUpdate();
+    
+});
+
+</script>
