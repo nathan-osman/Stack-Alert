@@ -6,8 +6,10 @@ var StackAlert = {
     //                       Constants
     //==========================================================
     
-    APIKey:      ')VDFrEIR*wIQ32QVY19EGQ((',
-    ClientID:    '49',
+    // Each add-on needs to set the next 3 values
+    Browser:  '',
+    APIKey:   '',
+    ClientID: '',
     
     ColorLoading:  [255, 255, 0, 255],
     ColorEmpty:    [0, 196, 196, 196],
@@ -18,14 +20,16 @@ var StackAlert = {
     //       Methods for getting / setting preferences
     //==========================================================
     
-    FirefoxPreferences: Components.classes['@mozilla.org/preferences-service;1']
-                          .getService(Components.interfaces.nsIPrefService)
-                          .getBranch('extensions.stackalert.'),
-    
     // Sets the preference with the given name to the given value
     SetPreference: function(name, value) {
         
-        StackAlert.FirefoxPreferences.setCharPref(name, value);
+        if(StackAlert.Browser == 'firefox')
+            Components.classes['@mozilla.org/preferences-service;1']
+              .getService(Components.interfaces.nsIPrefService)
+              .getBranch('extensions.stackalert.')
+              .setCharPref(name, value);
+        else
+            localStorage.setItem(name, value);
         
     },
     
@@ -33,13 +37,31 @@ var StackAlert = {
     // returning the provided default value if the preference does not exist
     GetPreference: function(name, default_value) {
         
-        if(StackAlert.FirefoxPreferences.prefHasUserValue(name))
-            return StackAlert.FirefoxPreferences.getCharPref(name);
-        else {
+        if(StackAlert.Browser == 'firefox') {
             
-            StackAlert.SetPreference(name, default_value);
-            return default_value;
+            var prefs = Components.classes['@mozilla.org/preferences-service;1']
+              .getService(Components.interfaces.nsIPrefService)
+              .getBranch('extensions.stackalert.');
             
+            if(prefs.prefHasUserValue(name))
+                return prefs.getCharPref(name);
+            else {
+                
+                StackAlert.SetPreference(name, default_value);
+                return default_value;
+                
+            }
+            
+        } else {
+            
+            if(localStorage.getItem(name) !== null)
+                return localStorage.getItem(name);
+            else {
+                
+                StackAlert.SetPreference(name, default_value);
+                return default_value;
+                
+            }
         }
     },
     
@@ -139,9 +161,18 @@ var StackAlert = {
         StackAlert.ButtonTooltip = tooltip;
         StackAlert.ButtonColor   = color;
         
-        for(var i=0;i<StackAlert.ButtonList.length;++i)
-            StackAlert.UpdateButton(StackAlert.ButtonList[i]);
+        if(StackAlert.Browser == 'firefox') {
         
+            for(var i=0;i<StackAlert.ButtonList.length;++i)
+                StackAlert.UpdateButton(StackAlert.ButtonList[i]);
+            
+        } else if(StackAlert.Browser == 'chrome') {
+            
+            chrome.browserAction.setBadgeText({text: text});
+            chrome.browserAction.setTitle({title: tooltip});
+            chrome.browserAction.setBadgeBackgroundColor({color: color});
+            
+        }
     },
     
     // Adds a button to the list of buttons to receive notifications when
@@ -184,7 +215,7 @@ var StackAlert = {
     // https://developer.mozilla.org/en/XUL_School/DOM_Building_and_HTML_Insertion#dom-building-html
     EscapeHTML: function(html_str) {
         
-        return html_str.replace(/[&"<>]/g, function (m) "&" + ({ "&": "amp", '"': "quot", "<": "lt", ">": "gt" })[m] + ";");
+        return html_str.replace(/[&"<>]/g, function (m) { "&" + ({ "&": "amp", '"': "quot", "<": "lt", ">": "gt" })[m] + ";" });
         
     },
     
@@ -192,16 +223,19 @@ var StackAlert = {
     // function above.
     SafelyAppendHTML: function(html, element) {
         
-        return Components.classes["@mozilla.org/feed-unescapehtml;1"]  
-          .getService(Components.interfaces.nsIScriptableUnescapeHTML)  
-          .parseFragment(html, false, null, element);
+        if(StackAlert.Browser == 'firefox')
+            Components.classes["@mozilla.org/feed-unescapehtml;1"]  
+              .getService(Components.interfaces.nsIScriptableUnescapeHTML)  
+              .parseFragment(html, false, null, element);
+        else
+            element.innerHTML += html;
         
     },
     
     MakeAPIRequest: function(method, parameters, success_callback, failure_callback) {
         
         // Create the request
-        var request = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
+        var request = (StackAlert.Browser == 'firefox')?Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance():new XMLHttpRequest();
         
         // URL-encode the parameters
         var param_str = '';
@@ -242,8 +276,18 @@ var StackAlert = {
     // Displays the authorization window on the screen
     ShowAuthWindow: function(window) {
         
-        window.open('auth.xul', 'stackalert_auth', 'chrome');
-        
+        // For firefox, we have an XUL window we display
+        // but for everything else, we just open a window
+        if(StackAlert.Browser == 'firefox')
+            window.open('auth.xul', 'stackalert_auth', 'chrome');
+        else {
+            
+            var window_url = 'https://stackexchange.com/oauth/dialog?client_id=' + StackAlert.ClientID +
+                             '&scope=no_expiry,read_inbox&redirect_uri=' + encodeURIComponent(chrome.extension.getURL('auth_complete.html'));
+            
+            window.open(window_url, 'auth_window', 'width=640,height=400,menubar=no,toolbar=no,location=no,status=no');
+            
+        }
     },
     
     // Begins the authorization process by opening a window for approving the extension
@@ -307,8 +351,8 @@ var StackAlert = {
             // Store the access token
             StackAlert.SetPreference('access_token', hash_map['access_token']);
             
-            // Refresh the buttons
-            StackAlert.PerformUpdate();
+            if(StackAlert.Browser == 'firefox')
+                StackAlert.PerformUpdate();
             
             return '';
             
@@ -321,11 +365,16 @@ var StackAlert = {
     
     OpenTab: function(url) {
         
-        Components.utils.import("resource://gre/modules/Services.jsm");
-        var browser = Services.wm.getMostRecentWindow("navigator:browser").getBrowser();
-        
-        // Select the newly opened tab
-        browser.selectedTab = browser.addTab(url);
+        if(StackAlert.Browser == 'firefox') {
+            
+            Components.utils.import("resource://gre/modules/Services.jsm");
+            var browser = Services.wm.getMostRecentWindow("navigator:browser").getBrowser();
+            
+            // Select the newly opened tab
+            browser.selectedTab = browser.addTab(url);
+            
+        } else
+            chrome.tabs.create({'url': 'http://google.ca'});
         
     },
     
@@ -431,12 +480,18 @@ var StackAlert = {
         
     },
     
+    // This method performs the actual update
     PerformUpdate: function() {
         
         // Cancel the timer if it is running
         if(StackAlert.Timer !== null) {
             
-            StackAlert.Timer.cancel();
+            // Cancel the timer and set it to null
+            if(StackAlert.Browser == 'firefox')
+                StackAlert.Timer.cancel();
+            else
+                window.clearTimeout(StackAlert.Timer);
+            
             StackAlert.Timer = null;
             
         }
@@ -477,8 +532,13 @@ var StackAlert = {
                                       });
             
             // Schedule the next update
-            StackAlert.Timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-            StackAlert.Timer.initWithCallback(StackAlert, 120000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+            if(StackAlert.Browser == 'firefox') {
+            
+                StackAlert.Timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+                StackAlert.Timer.initWithCallback(StackAlert, 120000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                
+            } else
+                StackAlert.Timer = window.setTimeout(StackAlert.PerformUpdate, 120000);
             
         } else
             StackAlert.UpdateAllButtons('!', 'Stack Alert has not been authorized to access your account.', StackAlert.ColorError);
@@ -490,6 +550,11 @@ var StackAlert = {
     
     // Begins the background timer that checks periodically for new items
     StartBackgroundTimer: function() {
+        
+        // Set the Firefox specific keys, etc.
+        StackAlert.Browser  = 'firefox';
+        StackAlert.APIKey   = ')VDFrEIR*wIQ32QVY19EGQ((';
+        StackAlert.ClientID = '49';
         
         if(!StackAlert.BackgroundTimer) {
             
