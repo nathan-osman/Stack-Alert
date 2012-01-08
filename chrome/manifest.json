@@ -12,7 +12,5 @@
     },
     "permissions": [
         "https://api.stackexchange.com/"
-    ],
-    
-    "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCVV9NDtkg/AdTpZv/ArvrjkPJeafQmU8mVpRN0G1xawxC3IbHG7urJO/uspIU7e9gINmYInwBJAf+Jh+3QmT056l4cOYk6VRUJX1XIwCjwyruU6KeJv2BJwKV7v7maNMXKUgOmoePk0h7zu3veeheQCi8sJxwnZSaR46+FustM/wIDAQAB"
+    ]
 }
