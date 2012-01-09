@@ -7,3 +7,9 @@
 .stackalert-button toolbarbutton {
     list-style-image: url("chrome://stackalert/skin/button.png");
 }
+
+.stackalert-button panel {
+    padding: 5px;
+    border: 4px solid #999;
+    -moz-border-radius: 16px;
+}
