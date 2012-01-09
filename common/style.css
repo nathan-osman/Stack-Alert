@@ -1,5 +1,6 @@
 body {
     font-family: arial, helvetica, sans;
+    width: 300px;
 }
 
 .auth button {

@@ -374,7 +374,7 @@ var StackAlert = {
             browser.selectedTab = browser.addTab(url);
             
         } else
-            chrome.tabs.create({'url': 'http://google.ca'});
+            chrome.tabs.create({'url': url});
         
     },
     

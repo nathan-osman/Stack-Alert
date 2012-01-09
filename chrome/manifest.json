@@ -1,13 +1,16 @@
 {
     "name": "Stack Alert",
-    "version": "0.11",
+    "version": "0.16",
     "description": "Monitors the inbox of a Stack Exchange account for new items.",
+    "icons": { "16":  "icon16.png",
+               "48":  "icon48.png",
+               "128": "icon128.png" },
     
     "update_url": "http://quickmediasolutions.com/stackalert/updates.xml",
     
     "background_page": "background.html",
     "browser_action": {
-        "default_icon": "icon.png",
+        "default_icon": "badge.png",
         "popup": "popup.html"
     },
     "permissions": [
