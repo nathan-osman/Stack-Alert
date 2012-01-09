@@ -6,15 +6,13 @@ var StackAlert = {
     //                       Constants
     //==========================================================
     
-    // Each add-on needs to set the next 3 values
-    Browser:  '',
-    APIKey:   '',
-    ClientID: '',
+    // Each add-on needs to set these values
     
-    ColorLoading:  [255, 255, 0, 255],
-    ColorEmpty:    [0, 196, 196, 196],
-    ColorNewItems: [0, 128, 255, 255],
-    ColorError:    [255, 0, 0, 255],
+    Browser:  'firefox',      // the current browser
+    IconSize: 24,             // the size of the icon in the toolbar
+    
+    APIKey:   ')VDFrEIR*wIQ32QVY19EGQ((',      // the API key for this browser
+    ClientID: '49',                            // the client ID for this browser
     
     //==========================================================
     //       Methods for getting / setting preferences
@@ -82,32 +80,23 @@ var StackAlert = {
         
     },
     
-    // Generates an RGB or RGBA string from the specified array
-    GenerateRGBArray: function(color_array) {
-        
-        // Check for the value of the 'a' parameter
-        if(color_array.length < 4)
-            return 'rgb(' + color_array[0] + ',' + color_array[1] + ',' + color_array[2] + ')';
-        else
-            return 'rgba(' + color_array[0] + ',' + color_array[1] + ',' + color_array[2] + ',' + color_array[3] + ')';
-        
-    },
-    
     // Generates a data:// URL for the button
-    GenerateImageURL: function(document, text, bg_color, complete_callback) {
+    GenerateImageData: function(document, text, complete_callback) {
         
         // Create a canvas element that will be used to overlay the icon
         // and the colored text.
-        var canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
-        canvas.setAttribute('width', 24);
-        canvas.setAttribute('height', 24);
+        var canvas = (StackAlert.Browser == 'firefox')?
+          document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas'):
+          document.createElement('canvas');
+        
+        canvas.setAttribute('width',  StackAlert.IconSize);
+        canvas.setAttribute('height', StackAlert.IconSize);
         
         // Get the context for the canvas
         var context = canvas.getContext('2d');
         
         // Load the base image and draw it onto the canvas
         var base_image = document.createElementNS('http://www.w3.org/1999/xhtml', 'img');
-        base_image.src = 'chrome://stackalert/skin/button.png';
         
         // Once the image has loaded, draw it
         base_image.addEventListener('load', function() {
@@ -115,19 +104,26 @@ var StackAlert = {
             context.drawImage(base_image, 0, 0);
             
             // Calculate the dimensions of the text
+            var height = parseInt(StackAlert.IconSize / 24 * 18);
+            context.font = 'bold ' + height + 'px sans-serif';
             var text_width = context.measureText(text).width;
+            var x = StackAlert.IconSize / 2 - text_width / 2;
+            var y = StackAlert.IconSize / 2 + height / 2 - 2;
             
-            // Draw the rectangle onto the icon
-            context.fillStyle = StackAlert.GenerateRGBArray(bg_color);
-            context.fillRect(20 - text_width, 12, text_width + 4, 12);
-            
-            // Draw the text onto the rectangle
+            // Draw the text 'shadow' and then the text
+            context.fillStyle = StackAlert.GenerateRGB(0);
+            context.fillText(text, x - 1, y - 1);
             context.fillStyle = StackAlert.GenerateRGB(255);
-            context.fillText(text, 22 - text_width, 22);
+            context.fillText(text, x, y);
             
-            complete_callback(canvas.toDataURL("image/png"));
+            // Return the canvas object
+            complete_callback(canvas, context);
             
         }, true);
+        
+        base_image.src = (StackAlert.Browser == 'firefox')?
+                           'chrome://stackalert/skin/button.png':
+                           'badge.png';
         
     },
     
@@ -137,17 +133,15 @@ var StackAlert = {
     // The current details for all of the buttons
     ButtonText:    null,
     ButtonTooltip: null,
-    ButtonColor:   [],
     
     // Updates the information on a particular icon
     UpdateButton: function(button) {
         
-        StackAlert.GenerateImageURL(button.getUserData('document'),
-                                    StackAlert.ButtonText,
-                                    StackAlert.ButtonColor,
-                                    function(image_url) {
+        StackAlert.GenerateImageData(button.getUserData('document'),
+                                     StackAlert.ButtonText,
+                                     function(canvas, context) {
         
-            button.style.listStyleImage = 'url(' + image_url + ')';
+            button.style.listStyleImage = 'url(' + canvas.toDataURL("image/png") + ')';
             button.setAttribute('tooltiptext', StackAlert.ButtonTooltip);
             
         });
@@ -157,21 +151,24 @@ var StackAlert = {
     // and stores the information for updating future buttons.
     UpdateAllButtons: function(text, tooltip, color) {
         
-        StackAlert.ButtonText    = text;
-        StackAlert.ButtonTooltip = tooltip;
-        StackAlert.ButtonColor   = color;
-        
         if(StackAlert.Browser == 'firefox') {
+            
+            StackAlert.ButtonText    = text;
+            StackAlert.ButtonTooltip = tooltip;
         
             for(var i=0;i<StackAlert.ButtonList.length;++i)
                 StackAlert.UpdateButton(StackAlert.ButtonList[i]);
             
         } else if(StackAlert.Browser == 'chrome') {
             
-            chrome.browserAction.setBadgeText({text: text});
-            chrome.browserAction.setTitle({title: tooltip});
-            chrome.browserAction.setBadgeBackgroundColor({color: color});
+            StackAlert.GenerateImageData(document, text,
+                                         function(canvas, context) {
             
+                chrome.browserAction.setIcon({imageData: context.getImageData(0, 0, StackAlert.IconSize,
+                                                                              StackAlert.IconSize)});
+                chrome.browserAction.setTitle({title: tooltip});
+                
+            });
         }
     },
     
@@ -496,7 +493,7 @@ var StackAlert = {
             
         }
         
-        StackAlert.UpdateAllButtons('...', 'Loading data...', StackAlert.ColorLoading);
+        StackAlert.UpdateAllButtons('...', 'Loading data...');
         
         // Check to make sure the user is authenticated
         var access_token = StackAlert.GetPreference('access_token', '');
@@ -516,8 +513,7 @@ var StackAlert = {
                                           }
                                           
                                           StackAlert.UpdateAllButtons(unread.toString(),
-                                                                      'You have ' + unread + ' unread items in your inbox.',
-                                                                      (unread)?StackAlert.ColorNewItems:StackAlert.ColorEmpty);
+                                                                      'You have ' + unread + ' unread items in your inbox.');
                                           
                                       },
                                       function(error_details) {
@@ -527,7 +523,7 @@ var StackAlert = {
                                           // Store the error HTML
                                           StackAlert.SetPreference('error_details', error_html);
                                           
-                                          StackAlert.UpdateAllButtons('!', error_details, StackAlert.ColorError);
+                                          StackAlert.UpdateAllButtons('!', error_details);
                                           
                                       });
             
@@ -541,8 +537,15 @@ var StackAlert = {
                 StackAlert.Timer = window.setTimeout(StackAlert.PerformUpdate, 120000);
             
         } else
-            StackAlert.UpdateAllButtons('!', 'Stack Alert has not been authorized to access your account.', StackAlert.ColorError);
-        
+            // Set a timeout to work around a Chrome bug
+            if(StackAlert.Browser == 'firefox')
+                StackAlert.UpdateAllButtons('X', 'Stack Alert has not been authorized to access your account.');
+            else
+                window.setTimeout(function() {
+                    
+                    StackAlert.UpdateAllButtons('X', 'Stack Alert has not been authorized to access your account.');
+                    
+                }, 100);
     },
     
     // Whether or not we have already begun the background timer
@@ -550,11 +553,6 @@ var StackAlert = {
     
     // Begins the background timer that checks periodically for new items
     StartBackgroundTimer: function() {
-        
-        // Set the Firefox specific keys, etc.
-        StackAlert.Browser  = 'firefox';
-        StackAlert.APIKey   = ')VDFrEIR*wIQ32QVY19EGQ((';
-        StackAlert.ClientID = '49';
         
         if(!StackAlert.BackgroundTimer) {
             
