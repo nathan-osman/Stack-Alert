@@ -234,6 +234,9 @@ var StackAlert = {
         // Create the request
         var request = (StackAlert.Browser == 'firefox')?Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance():new XMLHttpRequest();
         
+        if(StackAlert.Browser == 'firefox')
+            request.mozBackgroundRequest=true;
+        
         // URL-encode the parameters
         var param_str = '';
         for(var key in parameters)
@@ -242,27 +245,21 @@ var StackAlert = {
         // Open the request
         request.open('GET', 'https://api.stackexchange.com/2.0' + method + '?key=' + StackAlert.APIKey + param_str);
         
-        // Set the callback
-        request.onreadystatechange = function() {
+        request.onload = function() {
             
-            if(request.readyState == 4) {
-                
-                // A status of 200 means either success or an API error ocurred
-                // which means that error_id and error_message should be set
-                if(request.status == 200) {
-                    
-                    var json_response = JSON.parse(request.responseText);
-                    
-                    if(typeof json_response['error_message'] != 'undefined')
-                        failure_callback(json_response['error_message']);
-                    else
-                        success_callback(json_response);
-                    
-                }
-                else
-                    failure_callback(request.statusText);
-                
-            }
+            var json_response = JSON.parse(request.responseText);
+            
+            if(typeof json_response['error_message'] != 'undefined')
+                failure_callback(json_response['error_message']);
+            else
+                success_callback(json_response);
+            
+        };
+        
+        request.onerror = function() {
+            
+            failure_callback(request.statusText);
+            
         };
         
         // Send the request
@@ -296,6 +293,7 @@ var StackAlert = {
         browser.addEventListener('load', function() {
             
             var browser_location = browser.contentWindow.location;
+            
             if(browser_location.href.match(/^https:\/\/stackexchange\.com\/oauth\/login_success/) !== null) {
                 
                 var error_message = StackAlert.CompleteAuthorization(browser_location);

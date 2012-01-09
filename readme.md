@@ -1,8 +1,9 @@
 <h3>About</h3>
 <p>
   Stack Alert is a set of browser extensions used to display unread items in your Stack Exchange inbox.
-  Currently Stack Alert is available only for Google Chrome but a Firefox version of the extension is in the works.
-  The extensions use v2.0 of <a href="https://api.stackexchange.com/docs">the Stack Exchange API</a>.
+  Currently Stack Alert is available only for Google Chrome and Mozilla Firefox.
+  Other browsers are being considered where reasonable. The extensions use v2.0 of
+  <a href="https://api.stackexchange.com/docs">the Stack Exchange API</a>.
 </p>
 
 <h3>Download</h3>
