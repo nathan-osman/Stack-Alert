@@ -488,12 +488,16 @@ var StackAlert = {
                 var a = window.document.createElement('a');
                 a.setAttribute('href', 'javascript:void(0)');
                 a.setAttribute('style', 'color: ' + StackAlert.GenerateRGB(color));
-                a.addEventListener('click', function() {
+                
+                a.onclick = (function(i) {
                     
-                    StackAlert.OpenTab(StackAlert.EscapeURL(inbox_items[i]['link']));
-                    return false;
-                    
-                }, true);
+                    return function() {
+                        
+                        StackAlert.OpenTab(inbox_items[i]['link']);
+                        return false;
+                        
+                    }
+                })(i);
                 
                 var title_span = window.document.createElement('span');
                 title_span.setAttribute('class', 'title');
