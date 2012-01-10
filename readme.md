@@ -22,15 +22,15 @@
   </tr>
   <tr>
     <td>
-      <a href="http://i.stack.imgur.com/rDpNt.png" title="open image in new window" target="_blank">
-        <img title="Chrome extension" width="211" height="105"
-             src="http://i.stack.imgur.com/rDpNt.png" alt="Chrome extension in action" />
+      <a href="http://i.stack.imgur.com/RPVmg.png" title="open image in new window" target="_blank">
+        <img title="Chrome extension" width="166" height="183"
+             src="http://i.stack.imgur.com/RPVmg.png" alt="Chrome extension in action" />
       </a>
     </td>
     <td>
-      <a href="http://i.stack.imgur.com/zA1uf.png" title="open image in new window" target="_blank">
-        <img title="Firefox Add-on" width="154" height="196"
-             src="http://i.stack.imgur.com/zA1uf.png" alt="Firefox add-on in action" />
+      <a href="http://i.stack.imgur.com/Ti99F.png" title="open image in new window" target="_blank">
+        <img title="Firefox Add-on" width="178" height="192"
+             src="http://i.stack.imgur.com/Ti99F.png" alt="Firefox add-on in action" />
       </a>
     </td>
   </tr>
