@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+
+window.addEventListener("load", function(){
+    
+    var button;
+    var ToolbarUIItemProperties = {
+        title: "Stack Alert",
+        icon: "button.png",
+        popup: {
+            href: "popup.html",
+            width: 110,
+            height: 30
+        }
+    };
+    
+    button = opera.contexts.toolbar.createItem(ToolbarUIItemProperties);
+    opera.contexts.toolbar.addItem(button);
+    
+}, false);
+
+</script>
+</head>
+<body>
+</body>
+</html>

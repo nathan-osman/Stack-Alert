@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="http://quickmediasolutions.com/stackalert">
+	<name>Stack Alert</name>
+	<description>Displays the number of unread inbox items from your Stack Exchange accounts.</description>
+  	<author href="http://quickmediasolutions.com" email="admin@quickmediasolutions.com">Nathan Osman</author>
+  	<icon src="icon.png"/>
+</widget>
