@@ -1,6 +1,6 @@
 {
     "name": "Stack Alert",
-    "version": "0.16",
+    "version": "0.18",
     "description": "Monitors the inbox of a Stack Exchange account for new items.",
     "icons": { "16":  "icon16.png",
                "48":  "icon48.png",

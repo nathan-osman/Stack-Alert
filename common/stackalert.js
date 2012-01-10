@@ -1,3 +1,19 @@
+// Stack Alert - Monitor your Stack Exchange inbox.
+// Copyright (C) 2012 Nathan Osman
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 var EXPORTED_SYMBOLS = ['StackAlert'];
 
 var StackAlert = {
@@ -6,7 +22,7 @@ var StackAlert = {
     //                       Constants
     //==========================================================
     
-    // Each add-on needs to set these values
+    // Each add-on needs to set these values its
     
     Browser:  'firefox',      // the current browser
     IconSize: 24,             // the size of the icon in the toolbar
@@ -220,11 +236,15 @@ var StackAlert = {
     // function above.
     SafelyAppendHTML: function(html, element) {
         
-        if(StackAlert.Browser == 'firefox')
-            Components.classes["@mozilla.org/feed-unescapehtml;1"]  
+        if(StackAlert.Browser == 'firefox') {
+            
+            var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"]  
               .getService(Components.interfaces.nsIScriptableUnescapeHTML)  
               .parseFragment(html, false, null, element);
-        else
+            
+            element.appendChild(fragment);
+            
+        } else
             element.innerHTML += html;
         
     },
@@ -384,7 +404,7 @@ var StackAlert = {
     //==========================================================
     
     // Generates the HTML for the popup using the specified element
-    GeneratePopupHTML: function(element) {
+    GeneratePopupHTML: function(window, element) {
         
         // First check to see if an error needs to be displayed
         if(StackAlert.GetPreference('error_details', '') != '') {
@@ -399,14 +419,29 @@ var StackAlert = {
                                         element);
             
             // Add the dismissal button
-            element.innerHTML += '<button onclick="StackAlert.ResetError();window.reload();">OK</button>';
+            var button = window.document.createElement('button');
+            button.innerHTML = 'OK';
+            button.addEventListener('click', function() {
+                
+                StackAlert.ResetError();
+                window.reload();
+                
+            }, true);
+            
+            element.appendChild(button);
             
         } else if(StackAlert.GetPreference('access_token', '') == '') {
             
             // No access token has been specified yet, so generate the HTML
             // that asks the user to authorize the application.
             element.setAttribute('class', 'auth');
-            element.innerHTML = '<p>You need to authorize this extension to access the contents of your Stack Exchange account.</p><button onclick="StackAlert.ShowAuthWindow(window);">Authorize Extension</button>';
+            element.innerHTML = '<p>You need to authorize this extension to access the contents of your Stack Exchange account.</p>';
+            
+            var button = window.document.createElement('button');
+            button.innerHTML = 'Authorize Extension';
+            button.addEventListener('click', function() { StackAlert.ShowAuthWindow(window); }, true);
+            
+            element.appendChild(button);
             
         } else {
             
@@ -417,7 +452,8 @@ var StackAlert = {
             element.innerHTML = '<h3>Inbox Contents</h3>';
             
             // Begin generating the HTML contents for the inbox
-            var html_contents = '<ul class="contents">';
+            var ul = window.document.createElement('ul');
+            ul.setAttribute('class', 'contents');
             
             // The color of the item is determined by this factor
             var color_factor = 0.4;
@@ -446,12 +482,38 @@ var StackAlert = {
                 bg    = 255 - bg;
                 color = 255 - color;
                 
-                html_contents += '<li style="background-color: ' + StackAlert.GenerateRGB(bg) + '"><a href="javascript:void(0)" onclick="StackAlert.OpenTab(\'' + StackAlert.EscapeURL(inbox_items[i]['link']) + '\');return false;" style="color: ' + StackAlert.GenerateRGB(color) + ';"><span class="title">' + StackAlert.EscapeHTML(inbox_items[i]['title']) + '</span><span class="body">' + StackAlert.EscapeHTML(inbox_items[i]['body']) + '</span></a></li>';
+                var li = window.document.createElement('li');
+                li.setAttribute('style', 'background-color: ' + StackAlert.GenerateRGB(bg));
                 
+                var a = window.document.createElement('a');
+                a.setAttribute('href', 'javascript:void(0)');
+                a.setAttribute('style', 'color: ' + StackAlert.GenerateRGB(color));
+                a.addEventListener('click', function() {
+                    
+                    StackAlert.OpenTab(StackAlert.EscapeURL(inbox_items[i]['link']));
+                    return false;
+                    
+                }, true);
+                
+                var title_span = window.document.createElement('span');
+                title_span.setAttribute('class', 'title');
+                
+                StackAlert.SafelyAppendHTML(inbox_items[i]['title'],
+                                            title_span);
+                
+                var body_span = window.document.createElement('span');
+                body_span.setAttribute('class', 'body');
+                
+                StackAlert.SafelyAppendHTML(inbox_items[i]['body'],
+                                            body_span);
+                
+                a.appendChild(title_span);
+                a.appendChild(body_span);
+                li.appendChild(a);
+                ul.appendChild(li);
             }
             
-            html_contents += '</ul>';
-            element.innerHTML += html_contents;
+            element.appendChild(ul);
             
         }
     },
