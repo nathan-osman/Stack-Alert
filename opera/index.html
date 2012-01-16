@@ -1,27 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script>
-
-window.addEventListener("load", function(){
+  <script src='stackalert.js'></script>
+  <script src='opera.js'></script>
+  <script>
+  
+  window.addEventListener("load", function(){
     
-    var button;
-    var ToolbarUIItemProperties = {
-        title: "Stack Alert",
-        icon: "button.png",
-        popup: {
-            href: "popup.html",
-            width: 110,
-            height: 30
-        }
-    };
-    
-    button = opera.contexts.toolbar.createItem(ToolbarUIItemProperties);
-    opera.contexts.toolbar.addItem(button);
-    
-}, false);
-
-</script>
+      var button;
+      var ToolbarUIItemProperties = {
+          title: "Stack Alert",
+          icon: "badge.png",
+          popup: {
+              href: "popup.html",
+              width: 320,
+              height: 300
+          }
+      };
+      
+      button = opera.contexts.toolbar.createItem(ToolbarUIItemProperties);
+      opera.contexts.toolbar.addItem(button);
+      
+      StackAlert.ButtonInstance = button;
+      
+      // Begin the update
+      StackAlert.PerformUpdate();
+      
+  }, false);
+  
+  opera.extension.onmessage = function(event) {
+      
+      // NOT GOOD - we are silently discarding the error message
+      StackAlert.CompleteAuthorization(event.data);
+  
+  };
+  
+  </script>
 </head>
 <body>
 </body>

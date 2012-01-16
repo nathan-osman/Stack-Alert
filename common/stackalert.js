@@ -101,9 +101,7 @@ var StackAlert = {
         
         // Create a canvas element that will be used to overlay the icon
         // and the colored text.
-        var canvas = (StackAlert.Browser == 'firefox')?
-          document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas'):
-          document.createElement('canvas');
+        var canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
         
         canvas.setAttribute('width',  StackAlert.IconSize);
         canvas.setAttribute('height', StackAlert.IconSize);
@@ -142,6 +140,9 @@ var StackAlert = {
                            'badge.png';
         
     },
+    
+    // The single button instance
+    ButtonInstance: null,
     
     // List of buttons that receive notifications when the icon changes
     ButtonList: [],
@@ -183,6 +184,14 @@ var StackAlert = {
                 chrome.browserAction.setIcon({imageData: context.getImageData(0, 0, StackAlert.IconSize,
                                                                               StackAlert.IconSize)});
                 chrome.browserAction.setTitle({title: tooltip});
+                
+            });
+        } else {  // currently only Opera
+            
+            StackAlert.GenerateImageData(document, text,
+                                         function(canvas, context) {
+                
+                StackAlert.ButtonInstance.icon = canvas.toDataURL("image/png");
                 
             });
         }
@@ -297,9 +306,9 @@ var StackAlert = {
         else {
             
             var window_url = 'https://stackexchange.com/oauth/dialog?client_id=' + StackAlert.ClientID +
-                             '&scope=no_expiry,read_inbox&redirect_uri=' + encodeURIComponent(chrome.extension.getURL('auth_complete.html'));
+                             '&scope=no_expiry,read_inbox&redirect_uri=' + encodeURIComponent('https://stackexchange.com/oauth/login_success');
             
-            window.open(window_url, 'auth_window', 'width=640,height=400,menubar=no,toolbar=no,location=no,status=no');
+            var new_window = window.open(window_url, 'auth_window', 'width=640,height=400,menubar=no,toolbar=no,location=no,status=no');
             
         }
     },
@@ -337,10 +346,7 @@ var StackAlert = {
     },
     
     // Completes the authorization process by storing the access token and fetching the data
-    CompleteAuthorization: function(browser_location) {
-        
-        // Trim the '#' from the current hash and split against '&'
-        var hash = browser_location.hash;
+    CompleteAuthorization: function(hash) {
         
         if(hash.indexOf('#') === 0)
             hash = hash.substr(1);
@@ -388,8 +394,10 @@ var StackAlert = {
             // Select the newly opened tab
             browser.selectedTab = browser.addTab(url);
             
-        } else
+        } else if(StackAlert.Browser == 'chrome')
             chrome.tabs.create({'url': url});
+        else  // assume Opera
+            opera.extension.bgProcess.opera.extension.tabs.create({'url': url, 'focused': true});
         
     },
     

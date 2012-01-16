@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hello World!</title>
+  <link href="style.css" rel="stylesheet" />
+  <script src='stackalert.js'></script>
+  <script src='opera.js'></script>
 </head>
 <body>
-  [CONTENT GOES HERE]
+  <script>
+  
+  var div = document.createElement('div');
+  StackAlert.GeneratePopupHTML(window, div);
+  
+  document.getElementsByTagName('body')[0].appendChild(div);
+  
+  </script>
 </body>
 </html>

@@ -4,4 +4,6 @@
 	<description>Displays the number of unread inbox items from your Stack Exchange accounts.</description>
   	<author href="http://quickmediasolutions.com" email="admin@quickmediasolutions.com">Nathan Osman</author>
   	<icon src="icon.png"/>
+    
+    <access origin="https://api.stackexchange.com"/>
 </widget>
