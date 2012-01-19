@@ -1,6 +1,6 @@
 {
     "name": "Stack Alert",
-    "version": "0.18",
+    "version": "0.21",
     "description": "Monitors the inbox of a Stack Exchange account for new items.",
     "icons": { "16":  "icon16.png",
                "48":  "icon48.png",
@@ -13,7 +13,16 @@
         "default_icon": "badge.png",
         "popup": "popup.html"
     },
+    "content_scripts": [
+      {
+        "matches": ["https://stackexchange.com/oauth/login_success*"],
+        "js": ["auth.js"]
+      }
+    ],
+    
     "permissions": [
-        "https://api.stackexchange.com/"
+        "https://api.stackexchange.com/",
+        "notifications",
+        "tabs"
     ]
 }

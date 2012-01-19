@@ -432,7 +432,7 @@ var StackAlert = {
             button.addEventListener('click', function() {
                 
                 StackAlert.ResetError();
-                window.reload();
+                location.href = location.href;
                 
             }, true);
             

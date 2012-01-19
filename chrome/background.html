@@ -11,9 +11,16 @@
 StackAlert.PerformUpdate();
 
 // Listen for requests to update the data
-chrome.extension.onRequest.addListener(function() {
+chrome.extension.onRequest.addListener(function(request, sender) {
     
-    StackAlert.PerformUpdate();
+    // The command to perform is listed in request
+    if(request.command == 'update')
+        StackAlert.PerformUpdate();
+    else if(request.command == 'authorize') {
+        StackAlert.CompleteAuthorization(request.hash);
+        chrome.tabs.remove(sender.tab.id);
+        StackAlert.PerformUpdate();
+    }
     
 });
 
