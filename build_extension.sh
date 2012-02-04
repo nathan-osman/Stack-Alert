@@ -49,4 +49,18 @@ cp ../common/style.css chrome/skin/popup.css
 # Now create the add-on
 zip -r ../stackalert.xpi .
 
+#====================
+#       Opera
+#====================
+
+echo -e "\033[34mPackaging Opera extension...\033[m"
+
+# Switch to the directory and copy the JS / CSS files
+cd ../opera
+cp ../common/stackalert.js .
+cp ../common/style.css .
+
+# Now create the add-on
+zip -r ../stackalert.oex .
+
 echo -e "\033[32mPackaging complete!\033[m"

@@ -325,9 +325,9 @@ var StackAlert = {
             
             if(browser_location.href.match(/^https:\/\/stackexchange\.com\/oauth\/login_success/) !== null) {
                 
-                var error_message = StackAlert.CompleteAuthorization(browser_location);
+                var error_message = StackAlert.CompleteAuthorization(browser_location.hash);
                 if(error_message != '')
-                    alert("An error has occurred:\n\n" + error_message + "\n\nPlease click OK and try again.");
+                    browser.contentWindow.alert("An error has occurred:\n\n" + error_message + "\n\nPlease click OK and try again.");
                 
                 // Force a refresh
                 //...
@@ -606,7 +606,7 @@ var StackAlert = {
                 StackAlert.Timer.initWithCallback(StackAlert, 120000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
                 
             } else
-                StackAlert.Timer = window.setTimeout(StackAlert.PerformUpdate, 120000);
+                StackAlert.Timer = window.setTimeout(function() { StackAlert.PerformUpdate(); }, 120000);
             
         } else
             // Set a timeout to work around a Chrome bug
