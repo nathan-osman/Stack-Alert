@@ -7,10 +7,16 @@
 </p>
 
 <h3>Download</h3>
-<ul>
-  <li>Google Chrome: <a href="http://quickmediasolutions.com/stackalert/stackalert.crx">[download <code>crx</code>]</a>.</li>
-  <li>Mozilla Firefox: <a href="http://quickmediasolutions.com/stackalert/stackalert.xpi">[download <code>xpi</code>]</a>.</li>
-</ul>
+<table>
+  <tr>
+    <td>Google Chrome</td>
+    <td><a href="http://quickmediasolutions.com/stackalert/stackalert.crx">[download <code>crx</code>]</a>.</td>
+  </tr>
+  <tr>
+    <td>Mozilla Firefox</td>
+    <td><a href="http://quickmediasolutions.com/stackalert/stackalert.xpi">[download <code>xpi</code>]</a>.</td>
+  </tr>
+</table>
 
 <h3>Screenshots</h3>
 <p>Here are a couple of screenshots showing Stack Alert in action:</p>
