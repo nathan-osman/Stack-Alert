@@ -22,7 +22,7 @@
       // We want to open the popup when the button is clicked
       this.addEventListener('click', function() {
           
-          document.getAnonymousNodes(this)[1].openPopup(button, 'after_start', 0, 0, false, false);
+          document.getAnonymousNodes(this)[1].openPopup(button, 'after_end', 0, 0, false, false);
           document.getAnonymousNodes(this)[1].childNodes[0].contentWindow.location.reload();
           
       }, true);
