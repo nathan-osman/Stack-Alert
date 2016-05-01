@@ -10,11 +10,11 @@
 <table>
   <tr>
     <td>Google Chrome</td>
-    <td><a href="http://quickmediasolutions.com/stackalert/stackalert.crx">[download <code>crx</code>]</a>.</td>
+    <td><a href="http://files.quickmediasolutions.com/stackalert/stackalert.crx">[download <code>crx</code>]</a>.</td>
   </tr>
   <tr>
     <td>Mozilla Firefox</td>
-    <td><a href="http://quickmediasolutions.com/stackalert/stackalert.xpi">[download <code>xpi</code>]</a>.</td>
+    <td><a href="http://files.quickmediasolutions.com/stackalert/stackalert.xpi">[download <code>xpi</code>]</a>.</td>
   </tr>
 </table>
 
